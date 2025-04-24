@@ -19,8 +19,8 @@ const loadCategories = () => {
     .then(data => displayCategories(data.categories))
 }
 
-const loadVideos = () => {
-    fetch("https://openapi.programming-hero.com/api/phero-tube/videos")
+const loadVideos = (search = "") => {
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/videos?title=${search}`)
     .then(res => res.json())
     .then(data => displayVideos(data.videos))
 }
@@ -34,6 +34,22 @@ const loadCategoryVideos = (id) => {
         buttonDesign.classList.add("active")
         displayVideos(data.category)
     })
+}
+
+const loadVideoDetails = (videoId) => {
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/video/${videoId}`)
+    .then(res => res.json())
+    .then(data => displayVideoDetails(data.video))
+}
+
+const displayVideoDetails = (video) => {
+    const modalContain = document.getElementById("modal-contain")
+    modalContain.innerHTML = `
+    <img src=${video.thumbnail}/>
+    <h2 class="mt-2 text-xl font-bold">${video.title}</h2>
+    <p class="mt-2 text-gray-400">${video.description}</p>
+    `
+    document.getElementById("customModal").showModal();
 }
 
 const displayVideos = (videos) => {
@@ -73,7 +89,8 @@ const displayVideos = (videos) => {
                     <p class="text-gray-400">${video.authors[0].profile_name}</p>
                     ${video.authors[0].verified === true ? `<img class="h-4 w-4 rounded-full object-cover" src="https://img.icons8.com/?size=96&id=D9RtvkuOe31p&format=png" />` : ""}
                 </div>
-                <p class="text-sm text-gray-400">${video.others.views} views</>
+                <p class="text-sm text-gray-400">${video.others.views} views</><br>
+                <button onclick="loadVideoDetails('${video.video_id}')" class="mt-2 btn btn-primary">Details</button>
             </div>
          </div>
         `
@@ -91,6 +108,10 @@ const displayCategories = (categories) => {
     categoryContainer.append(buttonContainer)    
     });
 }
+
+document.getElementById("search").addEventListener("keyup", (e) => {
+    loadVideos(e.target.value)
+})
 
 loadCategories();
 loadVideos();
